@@ -25,7 +25,7 @@ function createFlower(x, y) {
         x,
         y,
         numPetals:floor(random(5, 10)),
-        petalLength:random(5,35),
+        petalLength:random(5,50),
         curveIntensity:random(5,35),
         col:color(random(100), random(60,100), random(60,100), 70)
     };
@@ -46,7 +46,17 @@ function drawFlower(f){
     for(let i=0; i < f.numPetals; i++){
         push();
         rotate((TWO_PI / f.numPetals) * i);
-        ellipse(0, -f.petalLength / 2, f.curveIntensity, f.petalLength);
+
+        beginShape();
+            vertex(0, 0);                                            // base anchor
+            bezierVertex(-f.curveIntensity, -f.petalLength * 0.25); // cp1 — left lower
+            bezierVertex(-f.curveIntensity, -f.petalLength * 0.75); // cp2 — left upper
+            bezierVertex(0, -f.petalLength);                         // tip anchor
+            bezierVertex(+f.curveIntensity, -f.petalLength * 0.75); // cp1 — right upper
+            bezierVertex(+f.curveIntensity, -f.petalLength * 0.25); // cp2 — right lower
+            bezierVertex(0, 0);                                      // back to base
+        endShape();
+
         pop();
     }
 
