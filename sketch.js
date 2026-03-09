@@ -11,7 +11,7 @@ function setup() {
 }
 
 function draw() {
-    background(75, 20, 15);
+    background(5, 0, 0);
 
     // draw the flowers by calling the drawFlowers function
     for(let i=0; i < allFlowers.length; i++){
@@ -25,9 +25,12 @@ function createFlower(x, y) {
         x,
         y,
         numPetals:floor(random(5, 10)),
-        petalLength:random(5,50),
-        curveIntensity:random(5,35),
-        col:color(random(100), random(60,100), random(60,100), 70)
+        petalLength:random(15,75),
+        curveIntensity:random(5,15),
+        col:color(random(100), random(60,100), random(60,100), 70),
+        baseCol: color(random(100), random(60,100), random(60,100)),
+        tipCol: color(random(100), random(60,100), random(60,100)),
+        noiseOffset: random(50,200)
     };
     allFlowers.push(flowerObject);
 }
@@ -39,6 +42,8 @@ function drawFlower(f){
     push();
     // position the flower where the x,y coordinates are declared and fill them with colour
     translate(f.x, f.y);
+    let sway = map(noise(f.noiseOffset + frameCount * 0.01),0,1,-0.35,0.35);
+    rotate(sway);
     fill(f.col);
     noStroke();
 
@@ -47,15 +52,16 @@ function drawFlower(f){
         push();
         rotate((TWO_PI / f.numPetals) * i);
 
-        beginShape();
-            vertex(0, 0);                                            // base anchor
-            bezierVertex(-f.curveIntensity, -f.petalLength * 0.25); // cp1 — left lower
-            bezierVertex(-f.curveIntensity, -f.petalLength * 0.75); // cp2 — left upper
-            bezierVertex(0, -f.petalLength);                         // tip anchor
-            bezierVertex(+f.curveIntensity, -f.petalLength * 0.75); // cp1 — right upper
-            bezierVertex(+f.curveIntensity, -f.petalLength * 0.25); // cp2 — right lower
-            bezierVertex(0, 0);                                      // back to base
-        endShape();
+        // adding a gradient from the base color to the tip colour and adding slices fro the gradient
+        for(let j=0; j < f.petalLength; j++){
+            let t = j/f.petalLength;
+            let y = -j;
+            let w = sin(t * PI) * f.curveIntensity;
+            let gradCol = lerpColor(f.baseCol, f.tipCol, t);
+            fill(gradCol);
+            ellipse(0, y, w, 2);
+    
+        }
 
         pop();
     }
