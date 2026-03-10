@@ -4,7 +4,7 @@ function setup() {
     createCanvas(800, 800);
     colorMode(HSB, 100);
 
-    // creating 20 flowers and push them into my array
+    // creating 20 flowers at random locations
     for(let i=0; i < 15; i++){
         createFlower(random(50,750), random(50,750));
     }
@@ -30,7 +30,8 @@ function createFlower(x, y) {
         col:color(random(100), random(60,100), random(60,100), 70),
         baseCol: color(random(100), random(60,100), random(60,100)),
         tipCol: color(random(100), random(60,100), random(60,100)),
-        noiseOffset: random(50,200)
+        noiseOffset: random(50,200),
+        rhythm: random(0.01,0.025)
     };
     allFlowers.push(flowerObject);
 }
@@ -38,11 +39,23 @@ function createFlower(x, y) {
 // draw a flower function
 function drawFlower(f){
 
+    // hover scale: lerp between 1.0 and 1.4 based on mouse proximity
+    let d = dist(mouseX, mouseY, f.x, f.y);
+    let threshold = 50;
+    let hoverScale;
+    if (d < threshold) {
+        let factor = map(d, 0, threshold, 1, 0);
+        hoverScale = lerp(1.0, 1.4, factor);
+    } else {
+        hoverScale = 1.0;
+    }
+
     // a push function to wrap the petal drawing and rotation
     push();
     // position the flower where the x,y coordinates are declared and fill them with colour
     translate(f.x, f.y);
-    let sway = map(noise(f.noiseOffset + frameCount * 0.01),0,1,-0.35,0.35);
+    scale(hoverScale);
+    let sway = map(noise(f.noiseOffset + frameCount * f.rhythm),0,1,-0.35,0.35);
     rotate(sway);
     fill(f.col);
     noStroke();
@@ -52,7 +65,7 @@ function drawFlower(f){
         push();
         rotate((TWO_PI / f.numPetals) * i);
 
-        // adding a gradient from the base color to the tip colour and adding slices fro the gradient
+        // adding a gradient from the base color to the tip colour and adding slices for the gradient
         for(let j=0; j < f.petalLength; j++){
             let t = j/f.petalLength;
             let y = -j;
@@ -60,7 +73,6 @@ function drawFlower(f){
             let gradCol = lerpColor(f.baseCol, f.tipCol, t);
             fill(gradCol);
             ellipse(0, y, w, 2);
-    
         }
 
         pop();
